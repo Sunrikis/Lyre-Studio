@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="lyre-token" content="__SESSION_TOKEN__" />
+    <title>21键 · 演奏台</title>
+    <link rel="icon" href="/favicon.svg" />
+    <link rel="stylesheet" href="/style.css" />
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/"
+        ><span class="brand-icon">♮</span><span>21键<span class="brand-sub">演奏台</span></span></a
+      >
+      <div class="top-actions">
+        <span id="connection" class="connection"><i></i>正在连接</span
+        ><button id="quit" class="quiet">退出演奏台</button>
+      </div>
+    </header>
+    <div id="notice" class="notice" role="status" hidden></div>
+    <div class="workspace">
+      <aside class="library-panel">
+        <div class="panel-heading">
+          <h2>我的曲库</h2>
+          <span id="songCount" class="count">0</span>
+        </div>
+        <label class="search"
+          ><span>⌕</span
+          ><input id="search" type="search" placeholder="搜索曲名…" aria-label="搜索曲库"
+        /></label>
+        <div id="library" class="song-list" aria-label="曲目列表"></div>
+        <div class="library-actions">
+          <button id="import" class="outline">＋ 导入曲谱</button
+          ><button id="refresh" class="quiet" title="刷新曲库" aria-label="刷新曲库">↻</button
+          ><input id="file" type="file" accept=".json,application/json" hidden />
+        </div>
+        <p class="small muted">每首歌一个文件，随时添加新曲子。</p>
+        <details class="help">
+          <summary>怎么开始演奏？</summary>
+          <ol>
+            <li>选择歌曲与跟练模式。</li>
+            <li>在游戏里打开乐器界面。</li>
+            <li>网页点击开始立即演奏，或在游戏中按 F8。后台游戏演奏需游戏窗口支持。</li>
+          </ol>
+          <p>网页试听可直接听分声部，并用下方 21 键试弹。</p>
+          <p>
+            <kbd>F5</kbd> 全部　<kbd>F6</kbd> 旋律　<kbd>F7</kbd> 伴奏<br /><kbd>F8</kbd> 开始 /
+            暂停 / 继续<br /><kbd>F9</kbd> 停止　<kbd>F10</kbd> 退出<br /><kbd>Insert</kbd> 上一段　<kbd>Delete</kbd> 下一段<br /><kbd>PageUp</kbd> 上一首　<kbd>PageDown</kbd> 下一首
+          </p>
+        </details>
+      </aside>
+      <main>
+        <section class="hero card">
+          <div class="song-heading">
+            <div class="cover" aria-hidden="true">
+              <span id="coverLetter">21</span><i></i><i></i><i></i>
+            </div>
+            <div class="song-title">
+              <div class="eyebrow">NOW PLAYING / 当前曲目</div>
+              <h1 id="songTitle">选择一首曲子</h1>
+              <div id="songMeta" class="meta">准备你的下一次演奏</div>
+            </div>
+            <div class="song-nav">
+              <button id="previous" class="icon-btn" title="上一首 · PageUp" aria-label="上一首">‹</button
+              ><button id="next" class="icon-btn" title="下一首 · PageDown" aria-label="下一首">›</button>
+            </div>
+          </div>
+          <div class="output-row">
+            <div class="segmented" aria-label="演奏位置">
+              <button data-output="game" id="gameOutput" aria-pressed="true">游戏演奏</button
+              ><button data-output="preview" aria-pressed="false">网页试听</button>
+            </div>
+              <span id="outputHint" class="small muted">正在连接本地演奏器</span>
+          </div>
+          <div class="timeline-head">
+            <span><i class="legend-dot melody"></i>旋律</span
+            ><span><i class="legend-dot accompaniment"></i>伴奏</span
+            ><span class="timeline-tip">点击音符分布，快速定位</span>
+          </div>
+          <canvas
+            id="timeline"
+            height="92"
+            tabindex="0"
+            aria-label="曲目音符分布，点击可跳转进度"
+          ></canvas>
+          <div class="progress-head">
+            <span id="currentTime">00:00.0</span><span id="sectionName" class="muted">准备就绪</span
+            ><span id="totalTime">00:00</span>
+          </div>
+          <input
+            type="range"
+            id="seek"
+            min="0"
+            max="100"
+            value="0"
+            step="0.05"
+            aria-label="演奏进度"
+          />
+          <div class="transport">
+            <div class="transport-state">
+              <span id="stateBadge" class="state-badge">待机</span
+              ><span id="reason" class="small muted">请选择曲目</span>
+            </div>
+            <div class="transport-buttons">
+              <button id="back" class="icon-btn skip" aria-label="后退5秒">↶<small>5</small></button
+              ><button id="play" class="primary play">
+                <span id="playIcon">▶</span><span id="playText">开始演奏</span
+                ><kbd>F8</kbd></button
+              ><button id="stop" class="icon-btn" aria-label="停止并归零" title="停止并归零">
+                <span class="square"></span></button
+              ><button id="forward" class="icon-btn skip" aria-label="前进5秒">
+                ↷<small>5</small>
+              </button>
+            </div>
+          </div>
+          <div class="section-controls"><button id="previousSection" class="quiet">‹ 上一段 <kbd>Insert</kbd></button><button id="nextSection" class="quiet">下一段 › <kbd>Delete</kbd></button></div>
+          <div id="sections" class="section-chips" aria-label="段落跳转"></div>
+        </section>
+        <section class="card practice">
+          <div class="card-heading">
+            <div>
+              <h2>一起弹，练一段</h2>
+              <p class="muted small">F5 全部 · F6 旋律 · F7 伴奏；演奏中切换不断拍。</p>
+            </div>
+            <span id="partsBadge" class="pill">声部信息</span>
+          </div>
+          <div class="practice-modes">
+            <button data-part="all" aria-pressed="true">
+              <span class="mode-symbol">♫</span><strong>完整演奏 <kbd>F5</kbd></strong
+              ><small>自动演奏全部声部</small></button
+            ><button data-part="accompaniment" aria-pressed="false">
+              <span class="mode-symbol">♪</span><strong>只弹伴奏 <kbd>F7</kbd></strong
+              ><small>你来练旋律</small></button
+            ><button data-part="melody" aria-pressed="false">
+              <span class="mode-symbol">♩</span><strong>只弹旋律 <kbd>F6</kbd></strong
+              ><small>你来练伴奏</small>
+            </button>
+          </div>
+          <p id="practiceHint" class="practice-hint">选择一首带有声部信息的曲目，即可分开跟练。</p>
+          <div class="upcoming-heading">
+            <span id="upcomingTitle">接下来的按键</span
+            ><span class="small muted">方括号内同时按</span>
+          </div>
+          <div id="upcoming" class="upcoming"></div>
+          <div class="keyboard-heading">
+            <span>21 键指引</span
+            ><span class="small muted">网页中点击或按键试弹 · 合成拨弦音色</span>
+          </div>
+          <div id="keyboard" class="keyboard"></div>
+        </section>
+      </main>
+      <aside class="settings-panel">
+        <section class="card settings-card">
+          <div class="card-heading">
+            <h2>练习速度</h2>
+            <span id="speedBadge" class="pill">1×</span>
+          </div>
+          <div class="tempo-number"><strong id="bpm">—</strong><span>BPM</span></div>
+          <input
+            type="range"
+            id="speed"
+            min="25"
+            max="200"
+            value="100"
+            step="5"
+            aria-label="速度百分比"
+          />
+          <div class="range-label"><span>慢一点</span><span>快一点</span></div>
+          <div class="speed-presets">
+            <button data-speed="0.5">0.5×</button><button data-speed="0.75">0.75×</button
+            ><button data-speed="1">原速</button><button data-speed="1.25">1.25×</button>
+          </div>
+          <label class="switch-row"
+            ><span>节拍器<small>网页发声，不占用游戏琴键</small></span
+            ><input id="metronome" type="checkbox" role="switch" /></label
+          ><label class="switch-row"
+            ><span>后台游戏演奏<small>网页有焦点时向游戏窗口发送按键；需游戏支持</small></span
+            ><input id="background" type="checkbox" role="switch" checked /></label
+          ><label class="volume-row" for="volume"
+            >网页音量<input
+              type="range"
+              id="volume"
+              min="0"
+              max="100"
+              value="55"
+              aria-label="网页音量"
+          /></label>
+        </section>
+        <section class="card settings-card">
+          <div class="card-heading">
+            <h2>A–B 循环</h2>
+            <input id="loopEnabled" type="checkbox" role="switch" aria-label="启用区间循环" />
+          </div>
+          <p class="small muted">把难的几秒，练到熟悉。</p>
+          <div class="loop-input">
+            <label for="loopA">A 起点</label
+            ><input id="loopA" value="00:00.0" aria-label="循环起点" /><button
+              id="setA"
+              class="quiet"
+              title="用当前进度设为A"
+            >
+              当前
+            </button>
+          </div>
+          <div class="loop-input">
+            <label for="loopB">B 终点</label
+            ><input id="loopB" value="00:00.0" aria-label="循环终点" /><button
+              id="setB"
+              class="quiet"
+              title="用当前进度设为B"
+            >
+              当前
+            </button>
+          </div>
+          <button id="applyLoop" class="outline full-width">应用区间</button
+          ><button id="loopSection" class="quiet full-width">循环当前段落</button>
+          <div id="loopInfo" class="loop-info">尚未开启循环</div>
+        </section>
+        <section class="card settings-card">
+          <h2>开始前准备</h2>
+          <label class="countdown-setting" for="countdown"
+            >开始前等待<select id="countdown">
+              <option value="0" selected>立即开始</option>
+              <option value="3">3 秒</option>
+              <option value="5">5 秒</option>
+              <option value="8">8 秒</option>
+              <option value="10">10 秒</option>
+            </select></label
+          >
+          <p class="small muted">
+            点击开始立即演奏。切歌、跳段和声部切换不会重新倒计时；变速仍需重新开始。
+          </p>
+          <a id="export" class="outline full-width" href="#">导出当前曲谱</a>
+        </section>
+      </aside>
+    </div>
+    <footer>
+      <span>LOCAL LYRE STUDIO</span><span>选一首喜欢的歌，慢慢弹。</span
+      ><span id="footerStatus">连接中</span>
+    </footer>
+    <div id="toast" class="toast" role="alert" hidden></div>
+  </body>
+</html>

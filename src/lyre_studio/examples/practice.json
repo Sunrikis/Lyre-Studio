@@ -1,0 +1,89 @@
+{
+  "format": "lyre-score",
+  "version": 1,
+  "title": "格式示例：短句与和弦",
+  "bpm": 100,
+  "time_unit": "beats",
+  "end": 8,
+  "events": [
+    {
+      "at": 0,
+      "keys": "NADH",
+      "parts": {
+        "melody": "H",
+        "accompaniment": "NAD"
+      }
+    },
+    {
+      "at": 1,
+      "keys": "J",
+      "parts": {
+        "melody": "J",
+        "accompaniment": ""
+      }
+    },
+    {
+      "at": 1.5,
+      "keys": "Q",
+      "parts": {
+        "melody": "Q",
+        "accompaniment": ""
+      }
+    },
+    {
+      "at": 2,
+      "keys": "VNAE",
+      "parts": {
+        "melody": "E",
+        "accompaniment": "VNA"
+      }
+    },
+    {
+      "at": 3,
+      "keys": "Q",
+      "parts": {
+        "melody": "Q",
+        "accompaniment": ""
+      }
+    },
+    {
+      "at": 4,
+      "keys": [
+        "B",
+        "M",
+        "S",
+        "J"
+      ],
+      "parts": {
+        "melody": "J",
+        "accompaniment": "BMS"
+      }
+    },
+    {
+      "at": 5,
+      "keys": "G",
+      "parts": {
+        "melody": "G",
+        "accompaniment": ""
+      }
+    },
+    {
+      "at": 6,
+      "keys": "NADH",
+      "parts": {
+        "melody": "H",
+        "accompaniment": "NAD"
+      }
+    }
+  ],
+  "sections": [
+    {
+      "name": "短句练习",
+      "at": 0
+    },
+    {
+      "name": "和弦回应",
+      "at": 4
+    }
+  ]
+}

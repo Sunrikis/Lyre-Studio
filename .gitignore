@@ -1,0 +1,34 @@
+# Local libraries, recordings and generated artifacts
+/songs/*
+!/songs/README.md
+/logs/
+/build/
+/artifacts/
+/tests/
+*.log
+*.mp3
+*.wav
+*.flac
+*.mid
+*.midi
+*.zip
+*.cmd
+# Python and editor state
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.ruff_cache/
+.pytest_cache/
+.coverage
+.env
+.env.*
+.vscode/
+.idea/
+node_modules/
+tests/tmp*/
+Thumbs.db
+.DS_Store
+
+/personal/
